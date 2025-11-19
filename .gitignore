@@ -1,0 +1,10 @@
+# Ignore everything by default
+*
+
+# But track these essential files
+!bandcamp_dl_gui.py
+!icon.ico
+!Bandcamp Downloader GUI.bat
+
+# Also track .gitignore itself
+!.gitignore
