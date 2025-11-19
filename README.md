@@ -49,60 +49,11 @@ Bandcamp Downloader GUI provides a simple way to download the freely available 1
 
 That's it! No manual package installation needed - the script handles it.
 
-## How to Use
-
-1. **Launch** `Bandcamp Downloader GUI.bat`
-2. **Paste** a Bandcamp URL (album, track, or artist page)
-3. **Choose** your download location and preferences
-4. **Click** "Download Album"
-5. **Wait** for the thing to happen
-
-The interface shows real-time progress, and files are automatically organized and tagged when complete.
-
-## Audio Quality & Artist Support
-
-### ⚠️ Important Quality Notice
-
-This tool downloads the **128 kbps MP3 streams** that Bandcamp makes available for free listening. These are the same quality files you hear when streaming on the website.
-
-**Converting to FLAC, OGG, or WAV does NOT improve quality** - it only changes the file format. The source remains 128 kbps.
-
-### 🎵 Support Artists
-
-For high-quality audio (FLAC, 320 kbps MP3, etc.), **please purchase albums directly from Bandcamp**. 
-
-Bandcamp is one of the best platforms for independent artists:
-* Artists receive a larger share of revenue than other platforms
-* You get high-quality downloads with your purchase
-* You're directly supporting the musicians you love
-
-**If you enjoy the music, please support the artists by purchasing their work!**
-
-## Technical Details
-
 ### Supported URLs
 
 * Album pages: `https://[artist].bandcamp.com/album/[album]`
 * Track pages: `https://[artist].bandcamp.com/track/[track]`
 * Artist pages: `https://[artist].bandcamp.com` (downloads all available albums)
-
-### Folder Structures
-
-1. **Root directory** - All files in one folder
-2. **Album folder** - Files organized by album name
-3. **Artist folder** - Files organized by artist name
-4. **Artist / Album** - Default structure
-5. **Album / Artist** - Alternative nested structure
-
-### Metadata
-
-All downloaded files include:
-* Artist name
-* Album name
-* Track title
-* Track number
-* Release date
-* Embedded cover art (for supported formats)
 
 ## Troubleshooting
 
@@ -122,6 +73,23 @@ All downloaded files include:
 **Album art not displaying in Interface**
 - Install Pillow: `python -m pip install Pillow`
 - The app will prompt to install it automatically
+
+### ⚠️ Important Quality Notice
+
+This tool downloads the **128 kbps MP3 streams** that Bandcamp makes available for free listening. These are the same quality files you hear when streaming on the website.
+
+**Converting to FLAC, OGG, or WAV does NOT improve quality** - it only changes the file format. The source remains 128 kbps.
+
+### 🎵 Support Artists
+
+For high-quality audio (FLAC, 320 kbps MP3, etc.), **please purchase albums directly from Bandcamp**. 
+
+Bandcamp is one of the best platforms for independent artists:
+* Artists receive a larger share of revenue than other platforms
+* You get high-quality downloads with your purchase
+* You're directly supporting the musicians you love
+
+**If you enjoy the music, please support the artists by purchasing their work!**
 
 ## Credits & Inspiration
 
