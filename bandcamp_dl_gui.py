@@ -186,6 +186,7 @@ class BandcampDownloaderGUI:
         self.skip_postprocessing_var = BooleanVar(value=self.load_saved_skip_postprocessing())
         self.create_playlist_var = BooleanVar(value=self.load_saved_create_playlist())
         self.download_cover_art_var = BooleanVar(value=self.load_saved_download_cover_art())
+        self.download_discography_var = BooleanVar(value=False)  # Always default to off, not persistent
         
         # Store metadata for preview
         self.album_info = {"artist": None, "album": None, "title": None, "thumbnail_url": None}
@@ -544,6 +545,7 @@ class BandcampDownloaderGUI:
                 "skip_postprocessing": self.skip_postprocessing_var.get(),
                 "create_playlist": self.create_playlist_var.get(),
                 "download_cover_art": self.download_cover_art_var.get(),
+                # download_discography is intentionally not saved - always defaults to off
                 "album_art_visible": self.album_art_visible
             }
         
@@ -667,6 +669,22 @@ class BandcampDownloaderGUI:
     def on_download_cover_art_change(self):
         """Handle download cover art checkbox change."""
         self.save_download_cover_art()
+    
+    def load_saved_download_discography(self):
+        """Load saved download discography preference, default to False if not found."""
+        # This function is kept for compatibility but always returns False
+        # download_discography is intentionally not persistent
+        return False
+    
+    def save_download_discography(self):
+        """Save download discography preference."""
+        # Intentionally does nothing - download_discography is not persistent
+        pass
+    
+    def on_download_discography_change(self):
+        """Handle download discography checkbox change."""
+        # Intentionally does nothing - download_discography is not persistent
+        pass
     
     def check_dependencies(self):
         """Check Python version, yt-dlp, and ffmpeg."""
@@ -854,17 +872,14 @@ class BandcampDownloaderGUI:
         self.settings_frame = Frame(main_frame, bg='#1E1E1E', relief='flat', bd=1, highlightbackground='#3E3E42', highlightthickness=1)
         self.settings_frame.grid(row=2, column=0, columnspan=2, sticky=(W, E, N), pady=6, padx=0)
         self.settings_frame.grid_propagate(False)
-        self.settings_frame.config(height=160)  # Fixed height with even padding
-        
-        # Label for the frame with show album art button (when hidden)
-        settings_header = Frame(self.settings_frame, bg='#1E1E1E')
-        settings_header.grid(row=0, column=0, sticky=(W, E), padx=6, pady=(4, 4))
-        settings_header.columnconfigure(0, weight=1)
-        
-        settings_label = Label(settings_header, text="Settings", bg='#1E1E1E', fg='#D4D4D4', font=("Segoe UI", 9))
-        settings_label.grid(row=0, column=0, sticky=W)
+        self.settings_frame.config(height=170)  # Reduced height with equal padding top and bottom
         
         # Show album art button (hidden by default, shown when album art is hidden)
+        # Placed directly in settings_frame header area
+        settings_header = Frame(self.settings_frame, bg='#1E1E1E')
+        settings_header.grid(row=0, column=0, sticky=(W, E), padx=6, pady=(6, 0))
+        settings_header.columnconfigure(0, weight=1)
+        
         self.show_album_art_btn = Label(
             settings_header,
             text="👁",
@@ -874,7 +889,7 @@ class BandcampDownloaderGUI:
             cursor='hand2',
             width=2
         )
-        self.show_album_art_btn.grid(row=0, column=1, sticky=E)
+        self.show_album_art_btn.grid(row=0, column=0, sticky=E)
         self.show_album_art_btn.bind("<Button-1>", lambda e: self.toggle_album_art())
         self.show_album_art_btn.bind("<Enter>", lambda e: self.show_album_art_btn.config(fg='#D4D4D4'))
         self.show_album_art_btn.bind("<Leave>", lambda e: self.show_album_art_btn.config(fg='#808080'))
@@ -882,38 +897,38 @@ class BandcampDownloaderGUI:
         
         # Inner frame for content
         settings_content = Frame(self.settings_frame, bg='#1E1E1E')
-        settings_content.grid(row=1, column=0, sticky=(W, E), padx=6, pady=(0, 4))
+        settings_content.grid(row=1, column=0, sticky=(W, E), padx=6, pady=(6, 6))  # Equal padding top and bottom
         self.settings_frame.columnconfigure(0, weight=1)
         
         # Album art panel (separate frame on the right, same height as settings, square for equal padding)
         self.album_art_frame = Frame(main_frame, bg='#1E1E1E', relief='flat', bd=1, highlightbackground='#3E3E42', highlightthickness=1)
         self.album_art_frame.grid(row=2, column=2, sticky=(W, E, N), pady=6, padx=(6, 0))
         self.album_art_frame.grid_propagate(False)
-        self.album_art_frame.config(width=160, height=160)  # Square panel for equal padding
+        self.album_art_frame.config(width=170, height=170)  # Square panel matching settings height for equal padding
         # Center content in the frame
         self.album_art_frame.columnconfigure(0, weight=1)
         self.album_art_frame.rowconfigure(0, weight=1)
         
-        # Album art canvas with consistent padding all around (10px padding = 140x140 canvas)
+        # Album art canvas with consistent padding all around (10px padding = 150x150 canvas)
         self.album_art_canvas = Canvas(
             self.album_art_frame,
-            width=140,
-            height=140,
+            width=150,
+            height=150,
             bg='#1E1E1E',
             highlightthickness=0,
             borderwidth=0,
             cursor='hand2'  # Show hand cursor to indicate it's clickable
         )
-        # Center the canvas with equal padding on all sides (10px on each side = 20px total)
+        # Center the canvas with equal padding on all sides (10px on each side = 20px total, 150 + 20 = 170)
         self.album_art_canvas.grid(row=0, column=0, padx=10, pady=10)
         
         # Make canvas clickable to toggle album art
         self.album_art_canvas.bind("<Button-1>", lambda e: self.toggle_album_art())
         
-        # Placeholder text on canvas
+        # Placeholder text on canvas (centered at 75, 75 for 150x150 canvas)
         self.album_art_canvas.create_text(
-            70, 70,
-            text="No album art",
+            75, 75,
+            text="Album Art",
             fill='#808080',
             font=("Segoe UI", 8)
         )
@@ -1011,6 +1026,21 @@ class BandcampDownloaderGUI:
             command=self.on_create_playlist_change
         )
         create_playlist_check.grid(row=5, column=0, columnspan=2, padx=4, sticky=W, pady=1)
+        
+        # Download artist discography checkbox (below Create playlist)
+        download_discography_check = Checkbutton(
+            settings_content,
+            text="Download artist discography",
+            variable=self.download_discography_var,
+            font=("Segoe UI", 8),
+            bg='#1E1E1E',
+            fg='#D4D4D4',
+            selectcolor='#1E1E1E',
+            activebackground='#1E1E1E',
+            activeforeground='#D4D4D4',
+            command=self.on_download_discography_change
+        )
+        download_discography_check.grid(row=6, column=0, columnspan=2, padx=4, sticky=W, pady=1)
         
         # Configure column weights to keep dropdowns in place
         settings_content.columnconfigure(0, weight=0)
@@ -1718,8 +1748,8 @@ class BandcampDownloaderGUI:
                 # Open and resize image
                 img = Image.open(io.BytesIO(image_data))
                 
-                # Resize to fit canvas (140x140) while maintaining aspect ratio
-                img.thumbnail((140, 140), Image.Resampling.LANCZOS)
+                # Resize to fit canvas (150x150) while maintaining aspect ratio
+                img.thumbnail((150, 150), Image.Resampling.LANCZOS)
                 
                 # Convert to PhotoImage
                 photo = ImageTk.PhotoImage(img)
@@ -1732,8 +1762,8 @@ class BandcampDownloaderGUI:
                     # Calculate position to center the image
                     img_width = photo.width()
                     img_height = photo.height()
-                    x = (140 - img_width) // 2
-                    y = (140 - img_height) // 2
+                    x = (150 - img_width) // 2
+                    y = (150 - img_height) // 2
                     
                     # Display image on canvas
                     self.album_art_canvas.create_image(x + img_width // 2, y + img_height // 2, image=photo, anchor='center')
@@ -1748,7 +1778,7 @@ class BandcampDownloaderGUI:
                 # PIL not available - can't display images
                 self.root.after(0, lambda: self.album_art_canvas.delete("all"))
                 self.root.after(0, lambda: self.album_art_canvas.create_text(
-                    70, 70, text="PIL required\nfor album art\n\nInstall Pillow:\npip install Pillow", 
+                    75, 75, text="PIL required\nfor album art\n\nInstall Pillow:\npip install Pillow", 
                     fill='#808080', font=("Segoe UI", 7), justify='center'
                 ))
                 self.album_art_fetching = False
@@ -1765,7 +1795,7 @@ class BandcampDownloaderGUI:
         try:
             self.album_art_canvas.delete("all")
             self.album_art_canvas.create_text(
-                70, 70,
+                75, 75,
                 text="No album art",
                 fill='#808080',
                 font=("Segoe UI", 8)
@@ -1892,6 +1922,39 @@ class BandcampDownloaderGUI:
             else:
                 self.wav_warning_label.grid_remove()
     
+    def extract_artist_page_url(self, url):
+        """Extract artist page URL from album/track URL.
+        
+        Args:
+            url: Bandcamp URL (can be album, track, or artist page)
+            
+        Returns:
+            Artist page URL (e.g., https://artist.bandcamp.com) or None if invalid
+        """
+        try:
+            from urllib.parse import urlparse, urlunparse
+            
+            parsed = urlparse(url)
+            
+            # Check if it's already an artist page (no path or just '/')
+            if not parsed.path or parsed.path == '/':
+                return url  # Already an artist page
+            
+            # Extract artist page URL by removing path and query
+            # Keep scheme, netloc (domain), but remove path, params, query, fragment
+            artist_url = urlunparse((
+                parsed.scheme,
+                parsed.netloc,
+                '',  # Empty path = artist page
+                '',  # No params
+                '',  # No query
+                ''   # No fragment
+            ))
+            
+            return artist_url
+        except Exception:
+            return None
+    
     def browse_folder(self):
         """Open folder browser dialog."""
         folder = filedialog.askdirectory(title="Select Download Folder")
@@ -1980,6 +2043,17 @@ class BandcampDownloaderGUI:
             if not response:
                 return
         
+        # Check if discography download is enabled
+        original_url = url
+        if self.download_discography_var.get():
+            # Extract artist page URL from album/track URL
+            artist_url = self.extract_artist_page_url(url)
+            if artist_url:
+                url = artist_url
+            else:
+                messagebox.showerror("Error", "Could not extract artist page URL from the provided URL.")
+                return
+        
         path = self.path_var.get().strip()
         is_valid, error_msg = self.validate_path(path)
         if not is_valid:
@@ -2011,7 +2085,11 @@ class BandcampDownloaderGUI:
         self.progress_var.set("Starting download...")
         self.log_text.delete(1.0, END)
         self.log("Starting download...")
-        self.log(f"URL: {url}")
+        if self.download_discography_var.get() and original_url != url:
+            self.log(f"Original URL: {original_url}")
+            self.log(f"Downloading artist discography from: {url}")
+        else:
+            self.log(f"URL: {url}")
         self.log(f"Path: {path}")
         self.log("")
         
@@ -3126,8 +3204,21 @@ class BandcampDownloaderGUI:
             self.album_info_stored = {}
             self.downloaded_files = set()  # Track files that were just downloaded
             self.download_start_time = None  # Track when download started
-            self.total_tracks = 0  # Total number of tracks in album
+            self.total_tracks = 0  # Total number of tracks in current album
             self.current_track = 0  # Current track being downloaded (0-based, will be incremented as tracks finish)
+            
+            # Discography tracking (for multi-album downloads)
+            self.is_discography_mode = self.download_discography_var.get()
+            self.total_albums = 0  # Total number of albums in discography
+            self.current_album = 0  # Current album being downloaded (0-based)
+            self.albums_info = []  # List of album info: [{"tracks": count, "name": name}, ...]
+            self.current_album_name = None  # Track current album name to detect album changes
+            self.current_album_path = None  # Track current album folder path to detect album changes
+            self.total_tracks_all_albums = 0  # Total tracks across all albums
+            self.completed_tracks_all_albums = 0  # Completed tracks across all albums
+            self.last_playlist_index = None  # Track last playlist_index to detect album changes
+            self.last_filename = None  # Track last filename to detect album changes via path
+            self.seen_album_paths = set()  # Track which album paths we've already seen to prevent duplicate detections
             
             # Get download start time
             self.download_start_time = time.time()
@@ -3153,9 +3244,17 @@ class BandcampDownloaderGUI:
                     quick_info = quick_ydl.extract_info(url, download=False)
                     if quick_info and "entries" in quick_info:
                         entries = [e for e in quick_info.get("entries", []) if e]
-                        self.total_tracks = len(entries)
-                        self.root.after(0, lambda count=len(entries): self.log(f"Found {count} track(s)"))
-                        self.root.after(0, lambda count=len(entries): self.progress_var.set(f"Found {count} track(s) - Fetching track data..."))
+                        
+                        if self.is_discography_mode:
+                            # In discography mode, entries are albums
+                            self.total_albums = len(entries)
+                            self.root.after(0, lambda count=len(entries): self.log(f"Found {count} album(s) in discography"))
+                            self.root.after(0, lambda count=len(entries): self.progress_var.set(f"Found {count} album(s) - Fetching album data..."))
+                        else:
+                            # Single album mode, entries are tracks
+                            self.total_tracks = len(entries)
+                            self.root.after(0, lambda count=len(entries): self.log(f"Found {count} track(s)"))
+                            self.root.after(0, lambda count=len(entries): self.progress_var.set(f"Found {count} track(s) - Fetching track data..."))
             except Exception:
                 # If quick extraction fails, continue to full extraction
                 pass
@@ -3182,39 +3281,74 @@ class BandcampDownloaderGUI:
                         # Store metadata for each track and update total tracks if not already set
                         if "entries" in info:
                             entries = [e for e in info.get("entries", []) if e]  # Filter out None entries
-                            if self.total_tracks == 0:  # Only update if quick extraction didn't work
-                                self.total_tracks = len(entries)
-                                self.root.after(0, lambda count=len(entries): self.log(f"Found {count} track(s)"))
                             
-                            # Log format/bitrate info from first track (to show what yt-dlp is downloading)
-                            # Always show source info so users know what quality they're getting
-                            if entries:
-                                first_entry = entries[0]
-                                format_info = []
-                                if first_entry.get("format"):
-                                    format_info.append(f"Format: {first_entry.get('format')}")
-                                if first_entry.get("abr"):
-                                    format_info.append(f"Bitrate: {first_entry.get('abr')} kbps")
-                                elif first_entry.get("tbr"):
-                                    format_info.append(f"Bitrate: {first_entry.get('tbr')} kbps")
-                                if first_entry.get("acodec"):
-                                    format_info.append(f"Codec: {first_entry.get('acodec')}")
-                                if first_entry.get("ext"):
-                                    format_info.append(f"Extension: {first_entry.get('ext')}")
-                                if format_info:
-                                    self.root.after(0, lambda info=" | ".join(format_info): self.log(f"Source: {info}"))
-                            
-                            for entry in entries:
-                                # Use title as key (will match by filename later)
-                                title = entry.get("title", "")
-                                if title:
-                                    self.download_info[title.lower()] = {
-                                        "title": entry.get("title"),
-                                        "artist": entry.get("artist") or entry.get("uploader") or entry.get("creator") or self.album_info_stored.get("artist"),
-                                        "album": entry.get("album") or info.get("title") or self.album_info_stored.get("album"),
-                                        "track_number": entry.get("track_number") or entry.get("track"),
-                                        "date": entry.get("release_date") or entry.get("upload_date") or self.album_info_stored.get("date"),
-                                    }
+                            if self.is_discography_mode:
+                                # In discography mode, entries are albums, each with their own tracks
+                                if self.total_albums == 0:  # Only update if quick extraction didn't work
+                                    self.total_albums = len(entries)
+                                
+                                # Count tracks across all albums
+                                self.albums_info = []
+                                for album_entry in entries:
+                                    if album_entry and "entries" in album_entry:
+                                        album_tracks = [e for e in album_entry.get("entries", []) if e]
+                                        album_name = album_entry.get("album") or album_entry.get("title") or "Unknown Album"
+                                        track_count = len(album_tracks)
+                                        self.albums_info.append({
+                                            "name": album_name,
+                                            "tracks": track_count
+                                        })
+                                        self.total_tracks_all_albums += track_count
+                                        
+                                        # Store metadata for tracks in this album
+                                        for track_entry in album_tracks:
+                                            title = track_entry.get("title", "")
+                                            if title:
+                                                self.download_info[title.lower()] = {
+                                                    "title": track_entry.get("title"),
+                                                    "artist": track_entry.get("artist") or album_entry.get("artist") or info.get("artist") or info.get("uploader") or info.get("creator"),
+                                                    "album": track_entry.get("album") or album_entry.get("album") or album_entry.get("title"),
+                                                    "track_number": track_entry.get("track_number") or track_entry.get("track"),
+                                                    "date": track_entry.get("release_date") or track_entry.get("upload_date") or album_entry.get("release_date") or album_entry.get("upload_date"),
+                                                }
+                                
+                                self.root.after(0, lambda albums=len(entries), tracks=self.total_tracks_all_albums: 
+                                               self.log(f"Found {albums} album(s) with {tracks} total track(s)"))
+                            else:
+                                # Single album mode, entries are tracks
+                                if self.total_tracks == 0:  # Only update if quick extraction didn't work
+                                    self.total_tracks = len(entries)
+                                    self.root.after(0, lambda count=len(entries): self.log(f"Found {count} track(s)"))
+                                
+                                # Log format/bitrate info from first track (to show what yt-dlp is downloading)
+                                # Always show source info so users know what quality they're getting
+                                if entries:
+                                    first_entry = entries[0]
+                                    format_info = []
+                                    if first_entry.get("format"):
+                                        format_info.append(f"Format: {first_entry.get('format')}")
+                                    if first_entry.get("abr"):
+                                        format_info.append(f"Bitrate: {first_entry.get('abr')} kbps")
+                                    elif first_entry.get("tbr"):
+                                        format_info.append(f"Bitrate: {first_entry.get('tbr')} kbps")
+                                    if first_entry.get("acodec"):
+                                        format_info.append(f"Codec: {first_entry.get('acodec')}")
+                                    if first_entry.get("ext"):
+                                        format_info.append(f"Extension: {first_entry.get('ext')}")
+                                    if format_info:
+                                        self.root.after(0, lambda info=" | ".join(format_info): self.log(f"Source: {info}"))
+                                
+                                for entry in entries:
+                                    # Use title as key (will match by filename later)
+                                    title = entry.get("title", "")
+                                    if title:
+                                        self.download_info[title.lower()] = {
+                                            "title": entry.get("title"),
+                                            "artist": entry.get("artist") or entry.get("uploader") or entry.get("creator") or self.album_info_stored.get("artist"),
+                                            "album": entry.get("album") or info.get("title") or self.album_info_stored.get("album"),
+                                            "track_number": entry.get("track_number") or entry.get("track"),
+                                            "date": entry.get("release_date") or entry.get("upload_date") or self.album_info_stored.get("date"),
+                                        }
             except Exception:
                 # If extraction fails, continue with download anyway
                 self.root.after(0, lambda: self.log("Warning: Could not fetch full metadata, continuing anyway..."))
@@ -3357,13 +3491,195 @@ class BandcampDownloaderGUI:
             status = d.get('status', '')
             
             if status == 'downloading':
+                # Detect album changes in discography mode
+                if self.is_discography_mode:
+                    # Get filename to extract album path
+                    filename = d.get('filename', '')
+                    current_album_path = None
+                    
+                    # Extract album folder from filename path
+                    if filename:
+                        try:
+                            from pathlib import Path
+                            file_path = Path(filename)
+                            # Get the album folder based on folder structure
+                            # Structure 1: Root/Track.mp3 (no album folder)
+                            # Structure 2: Root/Album/Track.mp3 (parent is album)
+                            # Structure 3: Root/Artist/Track.mp3 (parent is artist, no album folder)
+                            # Structure 4: Root/Artist/Album/Track.mp3 (parent is album)
+                            # Structure 5: Root/Album/Artist/Track.mp3 (parent.parent is album)
+                            choice = self._extract_structure_choice(self.folder_structure_var.get())
+                            if choice == "2":
+                                # Album folder structure: Root/Album/Track
+                                current_album_path = str(file_path.parent)
+                            elif choice == "4":
+                                # Artist/Album structure: Root/Artist/Album/Track
+                                # parent is album folder
+                                if len(file_path.parts) >= 2:
+                                    current_album_path = str(file_path.parent)
+                            elif choice == "5":
+                                # Album/Artist structure: Root/Album/Artist/Track
+                                # parent.parent is album folder
+                                if len(file_path.parts) >= 3:
+                                    current_album_path = str(file_path.parent.parent)
+                            elif choice == "3":
+                                # Artist folder structure: Root/Artist/Track
+                                # No album folder, but we can use artist folder as identifier
+                                if len(file_path.parts) >= 2:
+                                    current_album_path = str(file_path.parent)
+                        except Exception:
+                            pass
+                    
+                    # Try multiple methods to detect current album
+                    current_album_from_meta = d.get('album') or d.get('playlist') or d.get('playlist_title')
+                    
+                    # Also try to detect from playlist_index (might indicate album number in discography)
+                    playlist_index = d.get('playlist_index')
+                    
+                    # Initialize first album if not set
+                    if self.current_album_name is None:
+                        # Normalize path for first album
+                        normalized_first_path = None
+                        if current_album_path:
+                            try:
+                                path_obj = Path(current_album_path)
+                                normalized_first_path = str(path_obj.resolve())
+                            except:
+                                normalized_first_path = str(Path(current_album_path)).lower().replace('\\', '/')
+                        
+                        # Try to get album name from path or metadata
+                        if normalized_first_path:
+                            self.current_album_path = normalized_first_path
+                            # Mark first album path as seen
+                            self.seen_album_paths.add(normalized_first_path)
+                            # Extract album name from path
+                            try:
+                                album_folder_name = Path(current_album_path).name
+                                self.current_album_name = album_folder_name
+                            except:
+                                pass
+                        elif current_album_path:
+                            # Fallback: use original path
+                            self.current_album_path = current_album_path
+                            normalized_path = current_album_path.lower().replace('\\', '/')
+                            self.seen_album_paths.add(normalized_path)
+                        elif current_album_from_meta:
+                            self.current_album_name = current_album_from_meta
+                        
+                        # Try to find track count for first album
+                        if self.current_album_name:
+                            for album_info in self.albums_info:
+                                if album_info["name"] == self.current_album_name:
+                                    self.total_tracks = album_info["tracks"]
+                                    break
+                            # Log first album
+                            if self.total_albums > 0:
+                                self.root.after(0, lambda album=self.current_album_name, total=self.total_albums: 
+                                              self.log(f"Starting album 1 of {total}: {album}"))
+                    
+                    # Check if we need to detect album change
+                    album_changed = False
+                    
+                    # Normalize album path for comparison (case-insensitive, resolve to absolute)
+                    normalized_current_path = None
+                    if current_album_path:
+                        try:
+                            # Normalize path: resolve to absolute and normalize separators
+                            path_obj = Path(current_album_path)
+                            normalized_current_path = str(path_obj.resolve())
+                        except:
+                            # If resolve fails, just normalize the string
+                            normalized_current_path = str(Path(current_album_path)).lower().replace('\\', '/')
+                    
+                    # Method 1: Check if album path changed (most reliable)
+                    if normalized_current_path and normalized_current_path != self.current_album_path:
+                        # Check if we've already seen this path (prevent duplicate detections)
+                        if normalized_current_path not in self.seen_album_paths:
+                            album_changed = True
+                            # Extract album name from new path
+                            try:
+                                album_folder_name = Path(current_album_path).name
+                                if album_folder_name:
+                                    current_album_from_meta = album_folder_name
+                            except:
+                                pass
+                    
+                    # Method 2: Check if album name from metadata changed (only if path-based detection didn't trigger)
+                    elif current_album_from_meta and current_album_from_meta != self.current_album_name:
+                        # Normalize album name for comparison
+                        normalized_meta_name = current_album_from_meta.strip().lower()
+                        normalized_current_name = (self.current_album_name or "").strip().lower()
+                        if normalized_meta_name != normalized_current_name:
+                            # Check if we've seen this album name before (use name as fallback identifier)
+                            if normalized_meta_name not in [name.strip().lower() for name in [p.split('/')[-1] if '/' in p else p.split('\\')[-1] for p in self.seen_album_paths]]:
+                                album_changed = True
+                    
+                    # Method 3: Check playlist_index reset (heuristic) - only if other methods didn't trigger
+                    elif playlist_index is not None and self.last_playlist_index is not None:
+                        # If playlist_index resets or jumps back significantly, likely new album
+                        # But be more conservative - only if it's a significant reset
+                        if playlist_index < self.last_playlist_index - 2:  # More than 2 tracks back
+                            album_changed = True
+                    
+                    if album_changed:
+                        # New album detected - reset track counters
+                        if self.current_album_name is not None:
+                            # Album changed - increment album counter
+                            self.current_album += 1
+                            # Add completed tracks from previous album
+                            # Use total_tracks (which represents tracks in the completed album)
+                            if self.total_tracks > 0:
+                                self.completed_tracks_all_albums += self.total_tracks
+                        
+                        # Update total_albums if we've exceeded the initial count
+                        # This allows dynamic adjustment when more albums are detected than expected
+                        if self.current_album >= self.total_albums:
+                            self.total_albums = self.current_album + 1
+                        
+                        # Update album name and path
+                        if current_album_from_meta:
+                            self.current_album_name = current_album_from_meta
+                        if normalized_current_path:
+                            self.current_album_path = normalized_current_path
+                            # Mark this path as seen
+                            self.seen_album_paths.add(normalized_current_path)
+                        elif current_album_path:
+                            # Fallback: use original path if normalization failed
+                            self.current_album_path = current_album_path
+                            self.seen_album_paths.add(current_album_path.lower().replace('\\', '/'))
+                        
+                        self.current_track = 0
+                        self.total_tracks = 0
+                        
+                        # Try to find track count for current album
+                        if current_album_from_meta:
+                            for album_info in self.albums_info:
+                                if album_info["name"] == current_album_from_meta:
+                                    self.total_tracks = album_info["tracks"]
+                                    break
+                        
+                        # Log album change
+                        if self.current_album >= 0:
+                            album_num = self.current_album + 1
+                            album_display = current_album_from_meta or current_album_path or f"Album {album_num}"
+                            # Total now dynamically adjusts to match detected albums
+                            self.root.after(0, lambda album=album_display, num=album_num, total=self.total_albums: 
+                                          self.log(f"Starting album {num} of {total}: {album}"))
+                    
+                    # Store playlist_index and filename for next comparison
+                    if playlist_index is not None:
+                        self.last_playlist_index = playlist_index
+                    if filename:
+                        self.last_filename = filename
+                
                 # Get track/playlist info
                 # Note: playlist_index might only be present at the start of each track
                 # We'll use it if available, but rely on incrementing when tracks finish
                 playlist_index = d.get('playlist_index')
-                if playlist_index is not None:
+                if playlist_index is not None and not self.is_discography_mode:
                     # Store 0-based index (0-based internally for consistency)
                     # Only update if it's different (new track started)
+                    # In discography mode, playlist_index might refer to albums, so we handle it differently above
                     if playlist_index != self.current_track:
                         self.current_track = playlist_index
                 
@@ -3390,7 +3706,22 @@ class BandcampDownloaderGUI:
                 
                 # Build progress text with track info
                 track_prefix = ""
-                if self.total_tracks > 0:
+                if self.is_discography_mode:
+                    # Discography mode: show album and track info
+                    if self.total_albums > 0 and self.total_tracks > 0:
+                        current_album_1based = self.current_album + 1 if self.current_album >= 0 else 1
+                        current_track_1based = self.current_track + 1 if self.current_track >= 0 else 1
+                        # total_albums dynamically adjusts when more albums are detected than initially expected
+                        # Only cap track counter to avoid showing invalid track numbers
+                        if current_track_1based > self.total_tracks:
+                            current_track_1based = self.total_tracks
+                        track_prefix = f"Album {current_album_1based}/{self.total_albums}, Track {current_track_1based}/{self.total_tracks}: "
+                    elif self.total_albums > 0:
+                        current_album_1based = self.current_album + 1 if self.current_album >= 0 else 1
+                        # total_albums dynamically adjusts when more albums are detected than initially expected
+                        track_prefix = f"Album {current_album_1based}/{self.total_albums}: "
+                elif self.total_tracks > 0:
+                    # Single album mode
                     # Use stored current_track (0-based) and convert to 1-based for display
                     # current_track is incremented when each track finishes
                     current_track_1based = self.current_track + 1 if self.current_track >= 0 else 1
@@ -3416,9 +3747,19 @@ class BandcampDownloaderGUI:
                 else:
                     progress_text = f"Downloading {track_prefix}..."
                 
-                # Calculate overall album progress
+                # Calculate overall progress
                 overall_percent = None
-                if self.total_tracks > 0:
+                if self.is_discography_mode and self.total_tracks_all_albums > 0:
+                    # Discography mode: calculate progress across all albums and tracks
+                    # completed_tracks_all_albums = tracks from completed albums
+                    # current_track = current track in current album (0-based)
+                    # current_track_progress = percent / 100.0 (0.0 to 1.0)
+                    completed_tracks = self.completed_tracks_all_albums + self.current_track
+                    current_track_progress = (percent / 100.0) if percent is not None else 0.0
+                    overall_progress = (completed_tracks + current_track_progress) / self.total_tracks_all_albums
+                    overall_percent = overall_progress * 100.0
+                elif self.total_tracks > 0:
+                    # Single album mode
                     # Overall progress = (completed tracks + current track progress) / total tracks
                     # completed_tracks = current_track (0-based, so track 0 means 0 completed)
                     # current_track_progress = percent / 100.0 (0.0 to 1.0)
@@ -3463,15 +3804,113 @@ class BandcampDownloaderGUI:
                 self.root.after(0, update_progress)
             
             elif status == 'finished':
-                # Update track counter when a track finishes - increment to next track
-                # This ensures we show the correct track number for the next track that will download
-                # Only increment if we haven't reached the total
-                if self.current_track < self.total_tracks - 1:
-                    self.current_track += 1
-                
+                # Update track counter when a track finishes
                 filename = d.get('filename', '')
                 if filename and hasattr(self, 'downloaded_files'):
                     self.downloaded_files.add(filename)
+                
+                # Detect album changes in discography mode (using filename path)
+                album_changed = False
+                if self.is_discography_mode and filename:
+                    try:
+                        from pathlib import Path
+                        file_path = Path(filename)
+                        current_album_path = None
+                        
+                        # Extract album folder from filename path (same logic as downloading status)
+                        choice = self._extract_structure_choice(self.folder_structure_var.get())
+                        if choice == "2":
+                            current_album_path = str(file_path.parent)
+                        elif choice == "4":
+                            if len(file_path.parts) >= 2:
+                                current_album_path = str(file_path.parent)
+                        elif choice == "5":
+                            if len(file_path.parts) >= 3:
+                                current_album_path = str(file_path.parent.parent)
+                        elif choice == "3":
+                            if len(file_path.parts) >= 2:
+                                current_album_path = str(file_path.parent)
+                        
+                        # Normalize path for comparison
+                        normalized_finished_path = None
+                        if current_album_path:
+                            try:
+                                path_obj = Path(current_album_path)
+                                normalized_finished_path = str(path_obj.resolve())
+                            except:
+                                normalized_finished_path = str(Path(current_album_path)).lower().replace('\\', '/')
+                        
+                        # Check if album changed (only if we haven't seen this path before)
+                        if normalized_finished_path and normalized_finished_path != self.current_album_path:
+                            if normalized_finished_path not in self.seen_album_paths:
+                                album_changed = True
+                                
+                                # New album detected
+                                if self.current_album_path is not None:
+                                    # Album changed - increment album counter
+                                    self.current_album += 1
+                                    # Add completed tracks from previous album
+                                    if self.total_tracks > 0:
+                                        self.completed_tracks_all_albums += self.total_tracks
+                                
+                                # Update total_albums if we've exceeded the initial count
+                                # This allows dynamic adjustment when more albums are detected than expected
+                                if self.current_album >= self.total_albums:
+                                    self.total_albums = self.current_album + 1
+                                
+                                self.current_album_path = normalized_finished_path
+                                # Mark this path as seen
+                                self.seen_album_paths.add(normalized_finished_path)
+                                
+                                # Extract album name from path
+                                try:
+                                    album_folder_name = Path(current_album_path).name
+                                    self.current_album_name = album_folder_name
+                                    
+                                    # Try to find track count for current album
+                                    for album_info in self.albums_info:
+                                        if album_info["name"] == album_folder_name:
+                                            self.total_tracks = album_info["tracks"]
+                                            break
+                                    
+                                    # Log album change
+                                    if self.current_album >= 0:
+                                        album_num = self.current_album + 1
+                                        # Total now dynamically adjusts to match detected albums
+                                        self.root.after(0, lambda album=album_folder_name, num=album_num, total=self.total_albums: 
+                                                      self.log(f"Starting album {num} of {total}: {album}"))
+                                except:
+                                    pass
+                                
+                                # Reset track counter for new album (this track is the first of the new album)
+                                self.current_track = 0
+                    except Exception:
+                        pass
+                
+                # Handle track completion
+                if self.is_discography_mode:
+                    # In discography mode, increment track counter
+                    # If album just changed, current_track is 0, so increment to 1 (first track of new album)
+                    # Otherwise, increment normally
+                    if album_changed:
+                        # This track is the first of the new album
+                        self.current_track = 1
+                    elif self.total_tracks > 0 and self.current_track < self.total_tracks - 1:
+                        self.current_track += 1
+                    elif self.total_tracks > 0 and self.current_track >= self.total_tracks - 1:
+                        # Last track of current album - increment to show we're done with this album
+                        self.current_track += 1
+                        # If this is the last album, add completed tracks now
+                        # Otherwise, album change detection will handle it
+                        if self.current_album >= self.total_albums - 1:
+                            # Last album - add completed tracks for this album
+                            if self.total_tracks > 0:
+                                self.completed_tracks_all_albums += self.total_tracks
+                else:
+                    # Single album mode - increment track counter
+                    # Only increment if we haven't reached the total
+                    if self.current_track < self.total_tracks - 1:
+                        self.current_track += 1
                 
                 self.root.after(0, lambda: self.log(f"Processing: {d.get('filename', 'Unknown')}"))
             
