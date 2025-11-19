@@ -1,6 +1,12 @@
-# Bandcamp Downloader GUI
+<div align="center">
+
+# <img src="images/icon-title.png" width="32" height="32" alt="Icon"> Bandcamp Downloader GUI
+
+[![Download](images/download-button.png)](https://github.com/kameryn1811/Bandcamp-Downloader/releases/latest)
 
 A Python-based GUI application for downloading Bandcamp albums with full metadata and cover art support.
+
+</div>
 
 ## Why This Exists
 
