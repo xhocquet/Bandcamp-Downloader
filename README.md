@@ -4,9 +4,9 @@
 
 [![Download](images/download-button.png)](https://github.com/kameryn1811/Bandcamp-Downloader/releases/latest)
 
-A Python-based GUI application for downloading Bandcamp albums with full metadata and cover art support.
-
 </div>
+
+A Python-based GUI application for downloading Bandcamp albums with full metadata and cover art support.
 
 ## Why This Exists
 
